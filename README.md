@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/badge/Node.js-22%2B-64765a" alt="Node.js 22 或以上">
     <a href="https://github.com/1812370360/distancelens/stargazers"><img src="https://img.shields.io/github/stars/1812370360/distancelens?style=flat&color=52676b" alt="GitHub Stars"></a>
   </p>
-  <p><a href="#快速开始">快速开始</a> · <a href="#高德-api-接入">高德接入</a> · <a href="https://github.com/1812370360/distancelens/issues">问题反馈</a></p>
+  <p><a href="https://1812370360.github.io/distancelens/">在线演示</a> · <a href="#快速开始">快速开始</a> · <a href="#高德-api-接入">高德接入</a> · <a href="https://github.com/1812370360/distancelens/issues">问题反馈</a></p>
 </div>
 
 ## 项目简介
@@ -19,6 +19,8 @@
 只保留数据输入流程。几何计算在浏览器本地完成，高德接入可选，提供地点搜索和地图背景。MIT 开源，无构建或依赖安装步骤。
 
 ## 项目展示
+
+[在线体验](https://1812370360.github.io/distancelens/) · [高德接入说明](#高德-api-接入)
 
 ![DistanceLens 距离约束示意图](docs/assets/overview.svg)
 

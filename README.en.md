@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/badge/Node.js-22%2B-64765a" alt="Node.js 22 or newer">
     <a href="https://github.com/1812370360/distancelens/stargazers"><img src="https://img.shields.io/github/stars/1812370360/distancelens?style=flat&color=52676b" alt="GitHub stars"></a>
   </p>
-  <p><a href="#quick-start">Quick start</a> · <a href="#amap-setup">AMap setup</a> · <a href="https://github.com/1812370360/distancelens/issues">Report an issue</a></p>
+  <p><a href="https://1812370360.github.io/distancelens/">Live demo</a> · <a href="#quick-start">Quick start</a> · <a href="#amap-setup">AMap setup</a> · <a href="https://github.com/1812370360/distancelens/issues">Report an issue</a></p>
 </div>
 
 ## About
@@ -19,6 +19,8 @@ DistanceLens is a browser-based multilateration tool for **your own data or data
 There is one data-entry workflow, with no simulation mode. Geometry calculations run locally. AMap is optional and provides place search and a map background.
 
 ## Project showcase
+
+[Try the live demo](https://1812370360.github.io/distancelens/) · [AMap setup](#amap-setup)
 
 ![DistanceLens distance-constraint illustration](docs/assets/overview.svg)
 
