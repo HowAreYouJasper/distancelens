@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/assets/logo.svg" width="96" alt="DistanceLens logo">
-  <h1>DistanceLens</h1>
-  <p>Search reference places, enter distances, and inspect where the constraints overlap.</p>
+  <h1>DistanceLens · Three-point positioning</h1>
+  <p>Enter three places and their distances to find a possible location.</p>
   <p><a href="README.md">简体中文</a> | <strong>English</strong></p>
   <p>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64765a" alt="MIT license"></a>
@@ -9,43 +9,52 @@
     <img src="https://img.shields.io/badge/Node.js-22%2B-64765a" alt="Node.js 22 or newer">
     <a href="https://github.com/1812370360/distancelens/stargazers"><img src="https://img.shields.io/github/stars/1812370360/distancelens?style=flat&color=52676b" alt="GitHub stars"></a>
   </p>
-  <p><a href="https://1812370360.github.io/distancelens/">Live demo</a> · <a href="#quick-start">Quick start</a> · <a href="#amap-setup">AMap setup</a> · <a href="https://github.com/1812370360/distancelens/issues">Report an issue</a></p>
+  <p><a href="https://1812370360.github.io/distancelens/">Live demo</a> · <a href="#how-to-use-it">How to use it</a> · <a href="#amap-setup">AMap setup</a> · <a href="https://github.com/1812370360/distancelens/issues">Report an issue</a></p>
 </div>
 
-## About
+## What does it do?
 
-DistanceLens is a browser-based multilateration tool for **your own data or data you are authorized to use**. Add known reference coordinates and straight-line distances to a target. The app visualizes distance annuli, the sampled feasible region, and a least-squares estimate.
+**If you know how far a target is from three known places, you can try to work out its location.** DistanceLens draws this process so you can see the circles and possible area.
 
-There is one data-entry workflow, with no simulation mode. Geometry calculations run locally. AMap is optional and provides place search and a map background.
+Imagine you know the target's straight-line distance from places A, B, and C. Draw a circle around each place, using its distance as the radius. With ideal measurements, a shared point on all three circle edges gives the target's location. This is three-point positioning.
 
-## Project showcase
+Real distances have errors, so the app gives each circle a band of width. **Where all three bands overlap is a possible location area.** Inaccurate distances or poorly arranged places may produce no overlap or several possible areas. The result is an estimate, not a confirmed location.
 
-[Try the live demo](https://1812370360.github.io/distancelens/) · [AMap setup](#amap-setup)
+Use **your own data or data you are authorized to use**. The app supports 3 to 8 places and optional AMap address search.
 
-![DistanceLens distance-constraint illustration](docs/assets/overview.svg)
+## Preview
 
-The illustration explains the geometry and is not a real map or a measured result.
+[Open the live demo](https://1812370360.github.io/distancelens/)
 
-<details>
-<summary>View the application interface</summary>
+![Three-point positioning illustration](docs/assets/overview.svg)
 
-<img src="docs/assets/preview.jpg" width="640" alt="DistanceLens data-entry interface, before connecting an AMap key">
+This illustration explains the idea. It is not a real map or a measured result.
 
-The current interface is in Chinese. The screenshot shows manual entry and AMap configuration, with no live API key configured.
-</details>
+![DistanceLens three-point positioning interface](docs/assets/preview.jpg)
+
+The screenshot uses fictional places and distances without a live AMap key. The interface is in Chinese. The app starts empty so you can enter your own data.
+
+## How to use it
+
+1. **Choose places:** enter coordinates, or connect AMap and select addresses from search results.
+2. **Enter distances:** add the straight-line distance from the target to each place in meters, plus how many meters it might be off by.
+3. **Find the area:** add at least three places, then calculate. Inspect the circle bands, green area, and white cross.
+
+Each color represents a place. The **green area** contains the sampled positions that fit every distance within its allowed error. The **white cross** is an estimated position that tries to fit all distances. It can lie outside the green area.
+
+A smaller displayed distance mismatch means the estimate is closer to your inputs. The approximate area tells you how large the possible region is. Neither guarantees real positioning accuracy.
 
 ## Features
 
-- **AMap place search:** search by city and place name, then select an address to fill its coordinates.
-- **Manual coordinates:** supports GCJ-02 for AMap or WGS84 in the geometry view.
-- **Independent constraints:** 3–8 reference points, each with its own distance and tolerance.
-- **Annulus overlays:** inspect distance bands and the sampled common region.
-- **Least-squares estimate:** displays estimated coordinates, RMS distance residual, and approximate candidate area.
-- **Editable input:** change distances and tolerances, remove points, or replace them through bulk input.
-- **JSON export:** includes input, projection parameters, sampled region, and the estimate.
-- **Responsive interface:** no build step, package installation, or device-location permission required.
+- **Search addresses:** select an AMap result to fill in its coordinates.
+- **Enter data manually:** draw circles and calculate without an API key.
+- **Add more places:** use 3 to 8 places, each with its own distance and allowed error.
+- **Make changes:** edit distances and errors, remove places, and calculate again.
+- **Enter rows in bulk:** add several coordinates and distances at once.
+- **Export JSON:** save your inputs and calculated results.
+- **Use on mobile:** the layout adapts to small screens and does not request device location.
 
-## Quick start
+## Run locally
 
 Install Node.js 22 or newer, then run:
 
@@ -55,95 +64,87 @@ cd distancelens
 npm start
 ```
 
-Open [http://127.0.0.1:4173](http://127.0.0.1:4173). Manual input and the geometry view work without an AMap key. For offline geometry, you can also open `dist/index.html` directly. AMap should be used through HTTP with the appropriate allowed domains.
+Open [http://127.0.0.1:4173](http://127.0.0.1:4173). No additional dependencies are needed. Manual input works without an AMap key.
 
-```sh
-npm test
-```
-
-Tests cover the solver, projection, inconsistent constraints, ambiguous solutions, and the AMap adapter. Adapter tests use SDK substitutes and do not replace live service testing.
+For offline drawing and calculation, you can also open `dist/index.html` directly. Use the local server when connecting AMap.
 
 ## AMap setup
 
-1. Create an application in the [AMap developer console](https://console.amap.com/dev/key/app).
-2. Create a **Web (JS API)** key and obtain its `securityJsCode`.
-3. Enter both values in the application's AMap connection panel and connect.
-4. Search for a place, select the correct result, and enter the target's straight-line distance and tolerance.
-5. Add at least three reference points and calculate.
+1. Sign in to the [AMap developer console](https://console.amap.com/dev/key/app) and create an application.
+2. Create a **Web (JS API)** key and obtain its security code, `securityJsCode`. Do not choose the Web Service key type.
+3. Enter both in the page's AMap connection panel and connect.
+4. Enter a city and place name, search, and select the correct address.
+5. Add distances for at least three places, then calculate.
 
-Keys created after December 2, 2021 require the security code. Domain restrictions, service permissions, and quotas are managed in your AMap account. No valid credentials are bundled. See the [official key guide](https://developer.amap.com/api/javascript-api-v2/prerequisites) and [security guide](https://developer.amap.com/api/javascript-api-v2/guide/abc/jscode).
+No working key is included. Configure allowed domains, search permissions, and quotas in your AMap account. Keys and security codes are not written to project files or exported results. Refreshing clears them.
 
-For production, use a security proxy with `serviceHost`, such as `https://your-domain.example/_AMapService`. Keep `securityJsCode` on your server. The app supports this configuration; a proxy server is not included.
+<details>
+<summary>Using a security proxy for a public deployment</summary>
 
-## Input and coordinate systems
+For public deployments, keep the security code on a server through a proxy. The page supports `serviceHost`, such as `https://your-domain.example/_AMapService`. You do not need to enter the security code in the page when using a proxy. You must deploy the proxy yourself.
 
-AMap uses **GCJ-02**. WGS84 input is displayed only in the geometry view. Coordinates are never silently converted. The coordinate system is locked after adding a point and can be changed after clearing the list.
+See the [AMap security guide](https://developer.amap.com/api/javascript-api-v2/guide/abc/jscode). Address search uses [PlaceSearch](https://developer.amap.com/api/javascript-api-v2/guide/services/autocomplete). A loaded map SDK does not guarantee the key has permission to search.
 
-Bulk input uses one reference point per line, without a header:
+</details>
+
+## Tips for entering data
+
+- **Use straight-line distances**, not walking or driving route lengths.
+- **Keep coordinates consistent.** AMap uses GCJ-02. For GPS coordinates, select WGS84 and use the drawing view. Clear the places before switching systems.
+- **Allow realistic errors.** An error of 35 means the actual distance might be 35 meters smaller or larger. Very small errors can prevent the bands from overlapping.
+- **Stay within a small area.** Distances and separation between places are limited to 10 km. Allowed errors range from 1 to 500 m.
+- **Spread places out.** Three places on one straight line can produce two mirror locations.
+
+For bulk input, enter one place per line without a header:
 
 ```text
-latitude,longitude,straight_line_distance_m,tolerance_m
+latitude,longitude,straight_line_distance_m,allowed_error_m
 ```
 
-Tolerance is optional and defaults to 35 m. Bulk import replaces the current points. Limits: latitude ±80°, distances and reference-point separation up to 10 km, and tolerance from 1 to 500 m. Do not enter driving or walking route lengths.
+The final error is optional and defaults to 35 m. Enter 3 to 8 rows. Bulk input replaces the current places.
 
-## How it works
+## How accurate is it?
 
-A point p is feasible when every reference point satisfies:
+Accuracy depends on your coordinates, distances, and allowed errors. More decimal places on the screen do not mean better accuracy.
 
-```text
-abs(distance(p, anchor_i) - observed_distance_i) <= tolerance_i
-```
+The green area is found using a grid approximation, which can miss very narrow overlaps. No detected common area does not prove that no intersection exists. The estimated position is not a measured location. Use it to learn the idea or explore authorized data.
 
-The solver minimizes the sum of squared distance residuals with 25 starting points, damped Gauss–Newton, and backtracking. Global optimality is not guaranteed. Tolerance controls the feasible region; it is not a least-squares weight.
+<details>
+<summary>For developers: calculation details</summary>
 
-Coordinates are projected onto a local spherical plane using a radius of 6,371,008.8 m. This is an approximation, not an exact ellipsoidal geodesic solver. GCJ-02 introduces additional local distortions.
+Positioning from three distance measurements is called trilateration. With more reference places, it is multilateration. It does not measure angles.
 
-The feasible region is sampled on a 240 × 240 grid. Thin intersections can be missed. No sampled overlap is not proof that no solution exists. Collinear anchors can yield mirror solutions; the estimate displays only one. The candidate region is not a statistical confidence interval, and displayed decimal places do not guarantee accuracy.
+A circle band contains points whose distance from a place differs from the input by no more than its allowed error. The estimated position uses nonlinear least squares with 25 starting points, damped Gauss–Newton, and backtracking. Global optimality is not guaranteed. Allowed errors affect the green area, not the fit weights.
 
-## Privacy and responsible use
+Coordinates use a local spherical projection with a radius of 6,371,008.8 m. The green area uses a 240 × 240 grid. Its area is approximate, not a statistical confidence interval. Projection errors and GCJ-02 distortions affect the result. This is not a high-precision surveying tool.
 
-Use only personal or authorized data. The project does not identify screenshots, collect other people's location data, or request device geolocation.
+</details>
 
-Without AMap, there are no external requests. With AMap connected, searches, SDK loading, map tiles, and map-view requests use AMap services. Calculations remain local, but the third-party SDK runs in the page and is not an isolated privacy boundary. Input and credentials are not persisted by the app or included as credentials in exports. Exported JSON does contain location inputs. Refreshing clears the input; third-party SDK behavior is governed by AMap's policies.
+## Data and privacy
 
-## Technology
+Use only your own or authorized data. Do not track someone without consent. The app does not read screenshots, obtain device location, or automatically collect personal locations.
 
-| Component | Implementation |
-| --- | --- |
-| Interface | HTML, CSS, vanilla JavaScript |
-| Geometry view | Canvas 2D |
-| Maps and place search | AMap JS API 2.0, PlaceSearch |
-| Solver | Multi-start nonlinear least squares |
-| Local server and tests | Node.js built-in modules |
-| Deployment | Static hosting, optional GitHub Pages workflow |
+Distance calculations run in your browser. The app does not persist inputs, and refreshing clears them. Connecting AMap sends searches and map requests to AMap. Its SDK runs as a third-party script with access to the page. Exported JSON contains places and distances, so store it responsibly.
 
-## Repository structure
+## Technology and files
+
+The interface uses HTML, CSS, and vanilla JavaScript. Canvas draws the circles. AMap provides the map and address search. Node.js runs the local server and tests.
 
 ```text
-distancelens/
-├── dist/
-│   ├── index.html
-│   ├── style.css
-│   ├── app.js
-│   ├── solver.js
-│   └── amap-adapter.js
-├── docs/assets/
-├── tests/
-├── .github/workflows/pages.yml
-├── server.cjs
-├── package.json
-├── README.md
-├── README.en.md
-└── LICENSE
+dist/                   Interface, calculation, and AMap integration
+docs/assets/            Logo, illustration, and screenshot
+tests/                  Solver and AMap adapter tests
+server.cjs              Local static server
+.github/workflows/      GitHub Pages testing and deployment
+README.md               Chinese documentation
 ```
 
 ## Deployment and contributions
 
-Serve `dist/` on a static host. For GitHub Pages, choose **GitHub Actions** in Settings → Pages and run the included workflow. Allow the deployed hostname in your AMap key settings.
+Serve `dist/` on a static host. For GitHub Pages, select GitHub Actions in Settings → Pages. Pushing to main automatically tests and deploys the app. Allow the actual website domain in your AMap key settings.
 
-Issues and pull requests are welcome. Run `npm test` before submitting a change. Never commit API keys, security codes, or personal location datasets.
+Issues and pull requests are welcome. Run `npm test` after code changes. Adapter tests use a mock SDK and cannot replace testing with a live key. Do not commit credentials or personal location data.
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE). You may use and modify the project under the license terms.
