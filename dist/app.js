@@ -9,13 +9,13 @@ function validatePoint(p){
 function serialize(list){return list.map(p=>[p.lat,p.lon,p.distance].join(',')).join('\n');}
 function invalidate(){
   solution=null;sampled=null;
-  $('status').textContent=points.length>=3?'输入已更新，请计算':'等待至少三个参考点';
+  $('status').textContent=points.length>=3?'输入已更新，请计算':'等待至少三个已知地点';
   ['coordinates','rms','area'].forEach(id=>$(id).textContent='待计算');
-  $('explanation').textContent='采用局部球面近似投影，结果不能视为确定位置或统计置信区间。';
+  $('explanation').textContent='输入三个地点和距离后计算。距离有误差，结果也会有偏差，不能保证实际位置。';
   $('export').disabled=true;
   if(points.length>=3){const g=S.geographic(serialize(points));anchors=g.anchors.map((a,i)=>({...a,name:points[i].name,error:points[i].error}));projection=g.projection;size=g.size;}
   else{anchors=[];projection=null;size=2000;}
-  $('plot-subtitle').textContent=projection?Math.round(size).toLocaleString()+' m 局部视窗 · '+$('coordinate-system').value:'添加至少三个参考点后计算';
+  $('plot-subtitle').textContent=projection?Math.round(size).toLocaleString()+' 米范围 · '+$('coordinate-system').value:'添加至少三个地点，就可以开始计算';
   draw();refreshMap(false);
 }
 function refreshControls(){
@@ -31,19 +31,19 @@ function refreshControls(){
 }
 function renderPoints(){
   $('anchors').replaceChildren();
-  if(!points.length){const p=document.createElement('p');p.className='empty-list';p.textContent='尚未添加参考点';$('anchors').append(p);}
+  if(!points.length){const p=document.createElement('p');p.className='empty-list';p.textContent='尚未添加已知地点';$('anchors').append(p);}
   points.forEach((p,i)=>{
     const card=document.createElement('div');card.className='anchor-card';
     const title=document.createElement('div');title.className='anchor-title';
     const dot=document.createElement('span');dot.className='dot';dot.style.color=colors[i];dot.textContent=String.fromCharCode(65+i);
-    const name=document.createElement('strong');name.textContent=p.name||'参考点 '+String.fromCharCode(65+i);
-    const remove=document.createElement('button');remove.className='text-button';remove.textContent='移除';remove.setAttribute('aria-label','移除参考点 '+String.fromCharCode(65+i));remove.onclick=()=>{points.splice(i,1);renderPoints();invalidate();};
+    const name=document.createElement('strong');name.textContent=p.name||'已知地点 '+String.fromCharCode(65+i);
+    const remove=document.createElement('button');remove.className='text-button';remove.textContent='移除';remove.setAttribute('aria-label','移除已知地点 '+String.fromCharCode(65+i));remove.onclick=()=>{points.splice(i,1);renderPoints();invalidate();};
     title.append(dot,name,remove);card.append(title);
     const coords=document.createElement('small');coords.textContent=p.lat.toFixed(6)+', '+p.lon.toFixed(6);card.append(coords);
     const fields=document.createElement('div');fields.className='two-columns';
     for(const [key,label,max] of [['distance','距离，米',10000],['error','误差，±米',500]]){
       const wrap=document.createElement('label');wrap.className='field';wrap.textContent=label;
-      const input=document.createElement('input');input.type='number';input.min=key==='error'?1:0;input.max=max;input.step='any';input.value=p[key];input.setAttribute('aria-label','参考点 '+String.fromCharCode(65+i)+' '+label);
+      const input=document.createElement('input');input.type='number';input.min=key==='error'?1:0;input.max=max;input.step='any';input.value=p[key];input.setAttribute('aria-label','已知地点 '+String.fromCharCode(65+i)+' '+label);
       input.onchange=()=>{try{if(!input.value.trim())throw new Error('数值不能为空');const next={...p,[key]:Number(input.value)};validatePoint(next);Object.assign(p,next);$('input-error').textContent='';invalidate();}catch(e){input.value=p[key];$('input-error').textContent=e.message;}};
       wrap.append(input);fields.append(wrap);
     }
@@ -57,10 +57,10 @@ function calculate(){
     solution=S.solve(anchors,size);sampled=S.region(anchors,size);const geo=S.toGeographic(solution,projection);
     $('coordinates').textContent=geo.lat.toFixed(6)+'°, '+geo.lon.toFixed(6)+'°';
     $('rms').textContent=solution.rms.toFixed(1)+' m';
-    $('area').textContent=sampled.area?Math.round(sampled.area).toLocaleString()+' m²':'未检出';
-    $('status').textContent=sampled.cells.length?'找到候选区域':'未检出共同区域';
-    $('explanation').textContent=(sampled.cells.length?'绿色区域满足所有距离误差约束。':'当前采样未检出共同区域，距离可能矛盾，或交集过窄。')+' 网格间距 '+sampled.step.toFixed(1)+' m。球面投影与数值求解均有近似误差，显示小数位数不代表精度。';
-    $('plot-subtitle').textContent=Math.round(size).toLocaleString()+' m 局部视窗 · '+$('coordinate-system').value;
+    $('area').textContent=sampled.area?Math.round(sampled.area).toLocaleString()+' m²':'未找到';
+    $('status').textContent=sampled.cells.length?'找到可能的位置范围':'未找到共同范围';
+    $('explanation').textContent=(sampled.cells.length?'绿色范围是目前找到的、符合全部距离误差的地方。':'目前没有找到共同范围。请检查地点、距离和误差，也可能是重叠范围太窄。')+' 白色十字是估算位置，不一定落在绿色范围内。结果有近似误差，小数位数不代表准确程度。';
+    $('plot-subtitle').textContent=Math.round(size).toLocaleString()+' 米范围 · '+$('coordinate-system').value;
     $('input-error').textContent='';$('export').disabled=false;draw();refreshMap(true);
   }catch(e){$('input-error').textContent=e.message;}
 }
@@ -70,7 +70,7 @@ function draw(){
   const margin=42,scale=Math.max(1,Math.min(width-2*margin,height-2*margin))/size,left=(width-size*scale)/2,top=(height-size*scale)/2,X=x=>left+x*scale,Y=y=>top+(size-y)*scale;
   ctx.fillStyle='#111b1d';ctx.fillRect(left,top,size*scale,size*scale);ctx.font='10px "Segoe UI",sans-serif';
   for(let i=0;i<=8;i++){const n=i*size/8;ctx.strokeStyle='#253437';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X(n),top);ctx.lineTo(X(n),Y(0));ctx.moveTo(left,Y(n));ctx.lineTo(X(size),Y(n));ctx.stroke();if(i%2===0){ctx.fillStyle='#708786';ctx.textAlign='center';ctx.fillText(Math.round(n),X(n),Y(0)+19);ctx.textAlign='right';ctx.fillText(Math.round(n),left-8,Y(n)+3);}}
-  if(!anchors.length){ctx.textAlign='center';ctx.fillStyle='#c2ceca';ctx.font='14px "Microsoft YaHei",sans-serif';ctx.fillText('选择地点，输入距离',width/2,height/2-8);ctx.font='11px "Microsoft YaHei",sans-serif';ctx.fillStyle='#8ba09c';ctx.fillText('至少三个参考点，使用统一坐标系',width/2,height/2+18);return;}
+  if(!anchors.length){ctx.textAlign='center';ctx.fillStyle='#c2ceca';ctx.font='14px "Microsoft YaHei",sans-serif';ctx.fillText('选择地点，输入距离',width/2,height/2-8);ctx.font='11px "Microsoft YaHei",sans-serif';ctx.fillStyle='#8ba09c';ctx.fillText('添加至少三个地点，让圆帮你找位置',width/2,height/2+18);return;}
   ctx.save();ctx.beginPath();ctx.rect(left,top,size*scale,size*scale);ctx.clip();
   anchors.forEach((a,i)=>{const inner=Math.max(0,a.distance-a.error)*scale,outer=(a.distance+a.error)*scale;ctx.beginPath();ctx.arc(X(a.x),Y(a.y),outer,0,Math.PI*2);if(inner>0)ctx.arc(X(a.x),Y(a.y),inner,0,Math.PI*2,true);ctx.fillStyle=colors[i]+'18';ctx.fill('evenodd');ctx.strokeStyle=colors[i]+'80';ctx.beginPath();ctx.arc(X(a.x),Y(a.y),a.distance*scale,0,Math.PI*2);ctx.stroke();});
   if(sampled){ctx.fillStyle='#b5d78d88';sampled.cells.forEach(p=>ctx.fillRect(X(p.x-sampled.step/2),Y(p.y+sampled.step/2),sampled.step*scale+.3,sampled.step*scale+.3));}
@@ -90,17 +90,17 @@ function refreshMap(fit){
   else mapOverlays=points.map((p,i)=>new AMapSDK.Marker({position:[p.lon,p.lat],title:p.name||String.fromCharCode(65+i)}));
   if(mapOverlays.length){amap.add(mapOverlays);if(fit)amap.setFitView(mapOverlays,false,[40,40,40,40]);}
 }
-$('point-form').onsubmit=e=>{e.preventDefault();try{if(points.length>=8)throw new Error('最多添加 8 个参考点');const p={name:$('point-name').value.trim(),lat:Number($('latitude').value),lon:Number($('longitude').value),distance:Number($('distance').value),error:Number($('tolerance').value)};validatePoint(p);const next=[...points,p];if(next.length>=3)S.geographic(serialize(next));points=next;$('input-error').textContent='';$('point-form').reset();$('search-results').replaceChildren();renderPoints();invalidate();refreshMap(true);}catch(error){$('input-error').textContent=error.message;}};
+$('point-form').onsubmit=e=>{e.preventDefault();try{if(points.length>=8)throw new Error('最多添加 8 个已知地点');const p={name:$('point-name').value.trim(),lat:Number($('latitude').value),lon:Number($('longitude').value),distance:Number($('distance').value),error:Number($('tolerance').value)};validatePoint(p);const next=[...points,p];if(next.length>=3)S.geographic(serialize(next));points=next;$('input-error').textContent='';$('point-form').reset();$('search-results').replaceChildren();renderPoints();invalidate();refreshMap(true);}catch(error){$('input-error').textContent=error.message;}};
 $('import').onclick=()=>{try{const lines=$('csv').value.trim().split(/\r?\n/).filter(v=>v.trim());const next=lines.map((line,i)=>{const fields=line.trim().split(/[,，\s]+/);if(fields.length<3||fields.length>4)throw new Error('第 '+(i+1)+' 行格式错误');const [lat,lon,distance,error='35']=fields;return {lat:Number(lat),lon:Number(lon),distance:Number(distance),error:Number(error),name:''};});next.forEach(validatePoint);S.geographic(serialize(next));points=next;$('input-error').textContent='';renderPoints();invalidate();calculate();}catch(e){$('input-error').textContent=e.message;}};
 $('calculate').onclick=calculate;
 $('clear').onclick=()=>{points=[];anchors=[];$('input-error').textContent='';renderPoints();invalidate();};
-$('coordinate-system').onchange=()=>{$('search-results').replaceChildren();$('latitude').value='';$('longitude').value='';$('point-name').value='';$('search-status').textContent=$('coordinate-system').value==='WGS84'?'高德搜索与地图使用 GCJ-02，WGS84 数据仅显示几何视图。请重新填写所选坐标系中的坐标。':'请填写高德 GCJ-02 坐标，或连接高德搜索地点。';refreshControls();invalidate();};
+$('coordinate-system').onchange=()=>{$('search-results').replaceChildren();$('latitude').value='';$('longitude').value='';$('point-name').value='';$('search-status').textContent=$('coordinate-system').value==='WGS84'?'GPS 坐标只在画圆视图显示。请重新填写 GPS 经纬度，不要混用高德坐标。':'请填写高德 GCJ-02 坐标，或连接高德搜索地点。';refreshControls();invalidate();};
 $('geometry-view').onclick=()=>showView(false);
 $('map-view').onclick=()=>showView(true);
-$('connect').onclick=async()=>{const button=$('connect');button.disabled=true;$('connection-status').textContent='正在加载高德 SDK…';try{
+$('connect').onclick=async()=>{const button=$('connect');button.disabled=true;$('connection-status').textContent='正在连接高德地图…';try{
   AMapSDK=await G.loadSDK($('api-key').value,$('security-code').value,$('service-host').value);
   $('amap').hidden=false;amap=new AMapSDK.Map('amap',{zoom:11,viewMode:'2D'});
-  $('connection-status').textContent='SDK 已加载，可搜索地点。实际服务权限会在搜索时校验。';
+  $('connection-status').textContent='地图已连接，可以搜索地址。如果搜索失败，请检查 Key 的搜索权限。';
   $('api-key').value='';$('security-code').value='';$('api-key').disabled=true;$('security-code').disabled=true;$('service-host').disabled=true;button.textContent='已连接，刷新可重新配置';
   refreshControls();refreshMap(true);showView($('coordinate-system').value==='GCJ-02');
 }catch(e){$('connection-status').textContent=e.message;button.disabled=false;showView(false);}};
