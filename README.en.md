@@ -7,9 +7,9 @@
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64765a" alt="MIT license"></a>
     <a href="package.json"><img src="https://img.shields.io/badge/version-0.3.0-52676b" alt="Version 0.3.0"></a>
     <img src="https://img.shields.io/badge/Node.js-22%2B-64765a" alt="Node.js 22 or newer">
-    <a href="https://github.com/1812370360/distancelens/stargazers"><img src="https://img.shields.io/github/stars/1812370360/distancelens?style=flat&color=52676b" alt="GitHub stars"></a>
+    <a href="https://github.com/HowAreYouJasper/distancelens/stargazers"><img src="https://img.shields.io/github/stars/HowAreYouJasper/distancelens?style=flat&color=52676b" alt="GitHub stars"></a>
   </p>
-  <p><a href="https://1812370360.github.io/distancelens/">Live demo</a> · <a href="#how-to-use-it">How to use it</a> · <a href="#amap-setup">AMap setup</a> · <a href="https://github.com/1812370360/distancelens/issues">Report an issue</a></p>
+  <p><a href="https://howareyoujasper.github.io/distancelens/">Live demo</a> · <a href="#how-to-use-it">How to use it</a> · <a href="#amap-setup">AMap setup</a> · <a href="https://github.com/HowAreYouJasper/distancelens/issues">Report an issue</a></p>
 </div>
 
 ## What does it do?
@@ -24,7 +24,7 @@ Use **your own data or data you are authorized to use**. The app supports 3 to 8
 
 ## Preview
 
-[Open the live demo](https://1812370360.github.io/distancelens/)
+[Open the live demo](https://howareyoujasper.github.io/distancelens/)
 
 ![Three-point positioning illustration](docs/assets/overview.svg)
 
@@ -59,7 +59,7 @@ A smaller displayed distance mismatch means the estimate is closer to your input
 Install Node.js 22 or newer, then run:
 
 ```sh
-git clone https://github.com/1812370360/distancelens.git
+git clone https://github.com/HowAreYouJasper/distancelens.git
 cd distancelens
 npm start
 ```

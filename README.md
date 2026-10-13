@@ -7,9 +7,9 @@
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64765a" alt="MIT 许可证"></a>
     <a href="package.json"><img src="https://img.shields.io/badge/version-0.3.0-52676b" alt="版本 0.3.0"></a>
     <img src="https://img.shields.io/badge/Node.js-22%2B-64765a" alt="Node.js 22 或以上">
-    <a href="https://github.com/1812370360/distancelens/stargazers"><img src="https://img.shields.io/github/stars/1812370360/distancelens?style=flat&color=52676b" alt="GitHub Stars"></a>
+    <a href="https://github.com/HowAreYouJasper/distancelens/stargazers"><img src="https://img.shields.io/github/stars/HowAreYouJasper/distancelens?style=flat&color=52676b" alt="GitHub Stars"></a>
   </p>
-  <p><a href="https://1812370360.github.io/distancelens/">在线演示</a> · <a href="#怎么使用">使用方法</a> · <a href="#高德-api-接入">高德接入</a> · <a href="https://github.com/1812370360/distancelens/issues">问题反馈</a></p>
+  <p><a href="https://howareyoujasper.github.io/distancelens/">在线演示</a> · <a href="#怎么使用">使用方法</a> · <a href="#高德-api-接入">高德接入</a> · <a href="https://github.com/HowAreYouJasper/distancelens/issues">问题反馈</a></p>
 </div>
 
 ## 这是做什么的？
@@ -24,7 +24,7 @@
 
 ## 项目展示
 
-[打开在线演示](https://1812370360.github.io/distancelens/)
+[打开在线演示](https://howareyoujasper.github.io/distancelens/)
 
 ![三点定位原理示意](docs/assets/overview.svg)
 
@@ -59,7 +59,7 @@
 安装 Node.js 22 或更高版本，然后运行：
 
 ```sh
-git clone https://github.com/1812370360/distancelens.git
+git clone https://github.com/HowAreYouJasper/distancelens.git
 cd distancelens
 npm start
 ```
