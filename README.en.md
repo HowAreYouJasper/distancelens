@@ -38,9 +38,9 @@ The screenshot uses fictional places and distances without a live AMap key. The 
 
 1. **Choose places:** enter coordinates, or connect AMap and select addresses from search results.
 2. **Enter distances:** add the straight-line distance from the target to each place in meters, plus how many meters it might be off by.
-3. **Find the area:** add at least three places, then calculate. Inspect the circle bands, green area, and white cross.
+3. **Find the area:** add at least three places, then calculate. Inspect the circle bands, green area, and cross marker.
 
-Each color represents a place. The **green area** contains the sampled positions that fit every distance within its allowed error. The **white cross** is an estimated position that tries to fit all distances. It can lie outside the green area.
+Each color represents a place. The **green area** contains the sampled positions that fit every distance within its allowed error. The **cross marker** is an estimated position that tries to fit all distances. It can lie outside the green area.
 
 A smaller displayed distance mismatch means the estimate is closer to your inputs. The approximate area tells you how large the possible region is. Neither guarantees real positioning accuracy.
 
