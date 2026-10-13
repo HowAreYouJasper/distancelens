@@ -55,7 +55,7 @@
       items.push(new AMap.Marker({position:[a.lon,a.lat],title:a.name||a.id,offset:new AMap.Pixel(-12,-12),content:'<span class="map-marker" style="background:'+color+'">'+a.id+'</span>',zIndex:100}));
     });
     if(sampled)rectangles(sampled).forEach(r=>items.push(new AMap.Polygon({path:[xy({x:r.x0,y:r.y0}),xy({x:r.x1,y:r.y0}),xy({x:r.x1,y:r.y1}),xy({x:r.x0,y:r.y1})],strokeWeight:0,fillColor:'#82a54f',fillOpacity:.6,zIndex:30})));
-    if(solution)items.push(new AMap.Marker({position:xy(solution),title:'最小二乘估算点',offset:new AMap.Pixel(-12,-12),content:'<span class="map-marker" style="background:#fff">+</span>',zIndex:110}));
+    if(solution)items.push(new AMap.Marker({position:xy(solution),title:'估算位置',offset:new AMap.Pixel(-12,-12),content:'<span class="map-marker" style="background:#243e35">+</span>',zIndex:110}));
     return items;
   }
   const api={loadSDK,normalizePOI,search,rectangles,overlays};

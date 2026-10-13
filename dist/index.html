@@ -1,9 +1,76 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DistanceLens · 三点定位</title><meta name="description" content="三点定位：输入已知地点和直线距离，画圆找出可能的位置。仅使用自己的或已获授权的数据。"><link rel="stylesheet" href="style.css"></head>
-<body><header><a class="brand" href="./"><span class="logo" aria-hidden="true">◎</span> DistanceLens <span class="version">TOOL / 03</span></a><a class="docs-link" href="https://developer.amap.com/api/javascript-api-v2/guide/abc/jscode" target="_blank" rel="noreferrer">高德接入说明</a></header>
-<main><section class="intro"><div class="eyebrow">THREE-POINT POSITIONING</div><h1>三点定位，找出可能的位置。</h1><p>知道目标离三个地点分别有多远，就能画三个圆。距离有误差时，查看圆环重叠的范围。仅使用自己的或已获授权的数据。</p><ol class="steps" aria-label="使用步骤"><li><span>1</span>选择已知地点</li><li><span>2</span>填写直线距离</li><li><span>3</span>查看可能范围</li></ol></section>
-<div class="workspace"><section class="plot-panel"><div class="panel-top"><div><h2>距离圆与可能范围</h2><p id="plot-subtitle">添加至少三个地点，就可以开始计算</p></div><div class="view-switch" aria-label="视图选择"><button id="geometry-view" class="active" aria-pressed="true">画圆视图</button><button id="map-view" disabled aria-pressed="false">高德地图</button></div></div><div class="visualization"><canvas id="map" aria-label="已知地点、距离圆环与可能位置范围图"></canvas><div id="amap" hidden aria-label="高德地图"></div></div><div class="legend"><span><i class="ring"></i>距离圆环</span><span><i class="region"></i>可能范围</span><span><i class="estimate"></i>估算位置</span></div><p class="plot-hint">每个圆以地点为中心、距离为半径。圆环的宽度表示误差，绿色重叠范围是可能的位置，白色十字是估算位置。</p><section class="result" aria-live="polite"><div class="result-title"><span class="eyebrow">RESULT</span><h2 id="status">等待数据输入</h2><button id="export" class="text-button" disabled>导出 JSON</button></div><div class="metrics"><div><span id="coordinate-label">估算纬度, 经度</span><strong id="coordinates">待计算</strong></div><div><span>距离偏差，越小越贴近输入</span><strong id="rms">待计算</strong></div><div><span>可能范围约面积</span><strong id="area">待计算</strong></div></div><p id="explanation">距离有误差，结果也会有偏差。估算位置不一定落在绿色范围内，不能保证实际位置。</p></section></section>
-<aside><section class="controls"><details id="api-settings" open><summary>高德地图连接</summary><p class="input-note">填写自己的 Web 端 JS API Key。连接后可以搜索地点并在地图上查看结果。</p><label class="field" for="api-key">JS API Key</label><input id="api-key" type="password" autocomplete="off" placeholder="在此填写，不会保存到项目"><label class="field" for="security-code">安全密钥 securityJsCode</label><input id="security-code" type="password" autocomplete="off" placeholder="本地开发测试使用"><details class="advanced"><summary>使用安全代理</summary><label class="field" for="service-host">serviceHost</label><input id="service-host" type="url" placeholder="https://你的域名/_AMapService"><p class="input-note">正式部署推荐代理方式，安全密钥保留在服务器端。</p></details><button id="connect" class="primary">连接高德地图</button><p id="connection-status" class="input-note" role="status">未连接，仍可手动输入坐标。</p><p class="privacy-note">接入高德后，搜索关键词与地图访问请求由高德处理。距离计算在本地完成，不保存输入或密钥。</p></details></section>
-<section class="controls"><div class="panel-top"><h2>添加已知地点</h2><span id="point-count">0 / 8</span></div><label class="field" for="coordinate-system">坐标系</label><select id="coordinate-system"><option value="GCJ-02">高德坐标 GCJ-02</option><option value="WGS84">GPS 坐标 WGS84，画圆视图</option></select><div class="search-row"><label class="field" for="city">城市，可选</label><input id="city" placeholder="例如：杭州"><label class="field" for="keyword">地点名称或地址</label><div class="search-action"><input id="keyword" placeholder="连接高德后搜索地点"><button id="search" disabled>搜索</button></div></div><p id="search-status" role="status" class="input-note"></p><div id="search-results"></div><form id="point-form"><label class="field" for="point-name">地点名称，可选</label><input id="point-name" maxlength="80" placeholder="搜索选择后自动填入"><div class="two-columns"><div><label class="field" for="latitude">纬度</label><input id="latitude" type="number" min="-80" max="80" step="any" required placeholder="纬度"></div><div><label class="field" for="longitude">经度</label><input id="longitude" type="number" min="-180" max="180" step="any" required placeholder="经度"></div></div><div class="two-columns"><div><label class="field" for="distance">直线距离，米</label><input id="distance" type="number" min="0" max="10000" step="any" required placeholder="例如 950"></div><div><label class="field" for="tolerance">允许误差，±米</label><input id="tolerance" type="number" min="1" max="500" step="any" value="35" required></div></div><button class="primary" type="submit">添加已知地点</button></form><p id="input-error" role="alert"></p><details class="advanced"><summary>批量输入坐标</summary><label class="field" for="csv">每行：纬度,经度,距离,误差（可选）</label><textarea id="csv" rows="4" placeholder="可输入 3 至 8 行，无表头" spellcheck="false"></textarea><button id="import" class="secondary">导入并替换已知地点</button></details></section>
-<section class="controls"><div class="panel-top"><h2>已知地点列表</h2><button id="clear" class="text-button" disabled>清空</button></div><div id="anchors"><p class="empty-list">尚未添加已知地点</p></div><button id="calculate" class="primary" disabled>找出可能的位置</button></section></aside></div>
-<details class="method"><summary>三点定位怎么理解？结果有多准？</summary><p>一个距离能画一个圆，两个圆通常有两个交点，第三个圆可以帮助确定位置。实际距离有误差，所以用圆环重叠的范围来表示可能位置。请输入直线距离，不要用步行或驾车路线长度。</p><p>所有地点需使用同一种坐标，距离和地点间距限 10 千米。地点尽量分散，排在同一直线上时可能有两个对称的位置。计算使用近似方法，很窄的重叠范围可能没有显示出来。没有找到范围，不代表一定不存在交点；显示多位小数也不代表同样精确。</p></details></main><footer><span>DistanceLens · MIT 开源项目</span><span>输入已授权的数据 · 不获取设备定位</span></footer><script src="solver.js"></script><script src="amap-adapter.js"></script><script src="app.js"></script></body></html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DistanceLens · 三点定位</title>
+  <meta name="description" content="三点定位：选择已知地点，输入直线距离，画圆查看可能的位置。仅使用自己的或已获授权的数据。">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="./" aria-label="DistanceLens 首页">
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="15" cy="15" r="10"/><circle cx="25" cy="15" r="10"/><circle cx="20" cy="24" r="10"/></g><circle cx="20" cy="18" r="2" fill="currentColor"/></svg>
+    <span>DistanceLens</span><span class="brand-note">距离与位置</span>
+  </a>
+  <nav aria-label="页面导航"><a href="#method">使用说明</a><a href="https://github.com/HowAreYouJasper/distancelens" target="_blank" rel="noreferrer">GitHub</a><button id="open-map-settings" class="header-button">高德设置</button></nav>
+</header>
+<main>
+  <section class="intro">
+    <div><p class="eyebrow">从已知的距离，寻找可能的位置</p><h1>三点定位<span class="title-period">。</span></h1><p class="intro-copy">选三个地点，填入直线距离。看圆环在哪里相遇。</p></div>
+    <div class="intro-aside"><p>一个地点，一个距离圆。</p><p>距离有误差，就看重叠的范围。</p><span>仅使用自己的或已获授权的数据</span></div>
+  </section>
+  <div class="workspace">
+    <aside class="input-panel" aria-label="地点与距离输入">
+      <section class="controls entry-controls">
+        <div class="section-heading"><span class="section-index">01</span><h2>输入地点和距离</h2></div>
+        <p class="section-description">知道目标离哪里多远，就从哪里开始。</p>
+        <div class="entry-switch" role="group" aria-label="地点输入方式"><button id="manual-entry" class="active" aria-pressed="true">手动输入</button><button id="search-entry" aria-pressed="false">搜索地址</button></div>
+        <label class="field" for="coordinate-system">坐标类型</label>
+        <select id="coordinate-system"><option value="GCJ-02">高德坐标 GCJ-02</option><option value="WGS84">GPS 坐标 WGS84，画圆视图</option></select>
+        <div id="address-search" hidden>
+          <div class="search-row"><label class="field" for="city">城市，可选</label><input id="city" placeholder="例如：杭州"><label class="field" for="keyword">地点名称或地址</label><div class="search-action"><input id="keyword" placeholder="搜索地点名称或街道"><button id="search" disabled>搜索</button></div></div>
+          <p class="input-note">先连接自己的高德 Key，再搜索并选择地点。</p>
+        </div>
+        <p id="search-status" role="status" class="input-note"></p><div id="search-results"></div>
+        <form id="point-form">
+          <label class="field" for="point-name">地点名称，可选</label><input id="point-name" maxlength="80" placeholder="给这个地点起个名字">
+          <div class="two-columns"><div><label class="field" for="latitude">纬度</label><input id="latitude" type="number" min="-80" max="80" step="any" required placeholder="例如 30.2500"></div><div><label class="field" for="longitude">经度</label><input id="longitude" type="number" min="-180" max="180" step="any" required placeholder="例如 120.1500"></div></div>
+          <div class="distance-fields two-columns"><div><label class="field" for="distance">直线距离 <span>米</span></label><input id="distance" type="number" min="0" max="10000" step="any" required placeholder="例如 950"></div><div><label class="field" for="tolerance">允许误差 <span>±米</span></label><input id="tolerance" type="number" min="1" max="500" step="any" value="35" required></div></div>
+          <p class="input-note">例如 ±35 米，表示距离可能上下相差 35 米。</p>
+          <button class="secondary add-button" type="submit"><span>添加这个地点</span><span aria-hidden="true">＋</span></button>
+        </form>
+        <p id="input-error" role="alert"></p>
+        <details class="advanced"><summary>批量输入坐标</summary><label class="field" for="csv">每行：纬度,经度,距离,误差（可选）</label><textarea id="csv" rows="4" placeholder="可输入 3 至 8 行，无表头" spellcheck="false"></textarea><button id="import" class="secondary">导入并替换已知地点</button></details>
+        <details id="api-settings" class="api-settings"><summary>高德地图连接 <span id="api-state">未连接</span></summary>
+          <p class="input-note">填写自己的 Web 端 JS API Key，连接后可以搜索地址、查看地图。</p>
+          <label class="field" for="api-key">JS API Key</label><input id="api-key" type="password" autocomplete="off" placeholder="仅用于当前页面">
+          <label class="field" for="security-code">安全密钥 securityJsCode</label><input id="security-code" type="password" autocomplete="off" placeholder="本地开发测试使用">
+          <details class="advanced"><summary>使用安全代理</summary><label class="field" for="service-host">serviceHost</label><input id="service-host" type="url" placeholder="https://你的域名/_AMapService"><p class="input-note">正式部署推荐代理方式，安全密钥保留在服务器端。</p></details>
+          <button id="connect" class="secondary">连接高德地图</button><p id="connection-status" class="input-note" role="status">未连接，仍可手动输入坐标。</p>
+          <p class="privacy-note">搜索与地图请求由高德处理。距离计算在本地完成，输入与密钥不由应用持久保存。</p><a class="inline-link" href="https://developer.amap.com/api/javascript-api-v2/guide/abc/jscode" target="_blank" rel="noreferrer">查看高德配置说明</a>
+        </details>
+      </section>
+      <section class="controls places-controls">
+        <div class="panel-top"><h2>已知地点 <span id="point-count">0 / 8</span></h2><button id="clear" class="text-button" disabled>清空</button></div>
+        <div id="anchors"><p class="empty-list">还没有地点。添加后，会列在这里。</p></div>
+        <div class="calculate-area"><p id="calculate-hint">至少添加三个地点，就可以计算。</p><button id="calculate" class="primary" disabled>找出可能的位置 <span aria-hidden="true">↗</span></button></div>
+      </section>
+    </aside>
+    <section class="plot-panel" aria-label="距离图与计算结果">
+      <div class="panel-top plot-heading"><div><div class="section-heading"><span class="section-index">02</span><h2>距离圆与可能范围</h2></div><p id="plot-subtitle">添加三个地点后，距离圆会出现在这里</p></div><div class="view-switch" aria-label="视图选择"><button id="geometry-view" class="active" aria-pressed="true">画圆视图</button><button id="map-view" disabled aria-pressed="false">高德地图</button></div></div>
+      <div class="visualization">
+        <canvas id="map" aria-label="已知地点、距离圆环与可能位置范围图"></canvas><div id="amap" hidden aria-label="高德地图"></div>
+        <div id="plot-empty" class="plot-empty"><svg viewBox="0 0 90 76" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="33" cy="29" r="23"/><circle cx="57" cy="29" r="23"/><circle cx="45" cy="49" r="23"/></g></svg><h3>先添加三个已知地点</h3><p>用地点作圆心，用距离画圆。<br>它们相遇的地方，就是可能的位置。</p><span>上方图形为原理示意</span></div>
+        <span class="plot-unit">距离单位：米</span>
+      </div>
+      <div class="plot-caption"><div class="legend"><span><i class="ring"></i>距离圆环</span><span><i class="region"></i>可能范围</span><span><i class="estimate"></i>估算位置</span></div><p class="plot-hint">圆环越宽，允许的距离误差越大。绿色重叠范围是可能的位置，十字是估算位置。</p></div>
+      <section class="result" aria-live="polite"><div class="result-title"><div><p class="eyebrow">计算结果</p><h2 id="status">等待地点输入</h2></div><button id="export" class="text-button" disabled>导出 JSON <span aria-hidden="true">↓</span></button></div><div class="metrics"><div class="coordinate-metric"><span id="coordinate-label">估算纬度, 经度</span><strong id="coordinates">待计算</strong></div><div><span>距离偏差</span><strong id="rms">待计算</strong><small>越小越贴近输入距离</small></div><div><span>可能范围约面积</span><strong id="area">待计算</strong><small>范围大小为近似值</small></div></div><p id="explanation">输入至少三个地点后计算。距离有误差，结果也会有偏差。</p></section>
+      <details id="method" class="method"><summary>三个圆为什么能帮助定位？</summary><p>一个距离能画一个圆，两个圆通常有两个交点，第三个圆可以帮助确定位置。实际距离有误差，所以用圆环重叠的范围来表示可能位置。请输入直线距离，不要用步行或驾车路线长度。</p><p>所有地点需使用同一种坐标，距离和地点间距限 10 千米。地点尽量分散，排在同一直线上时可能有两个对称的位置。计算使用近似方法，很窄的重叠范围可能没有显示出来。没有找到范围，不代表一定不存在交点；显示多位小数也不代表同样精确。估算位置不一定落在绿色范围内。</p></details>
+    </section>
+  </div>
+</main>
+<footer><span>DistanceLens <span class="footer-divider">/</span> 三点定位</span><span>本人或已授权的数据 · 不获取设备定位 · MIT 开源</span></footer>
+<script src="solver.js"></script><script src="amap-adapter.js"></script><script src="app.js"></script>
+</body>
+</html>
